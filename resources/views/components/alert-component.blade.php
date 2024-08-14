@@ -1,0 +1,1 @@
+<p class="alert alert-{{ $class }} alert-sm p-1 text-center">{{ $slot }}</p>

@@ -1,0 +1,1 @@
+<img src="{{ asset('images/categories/' . $category_image) }}" class="img-fluid" style="width:150px" />

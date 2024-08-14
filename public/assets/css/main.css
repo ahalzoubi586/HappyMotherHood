@@ -1,0 +1,27 @@
+ul {
+    list-style: none;
+}
+
+.text-right {
+    text-align: right !important;
+}
+.text-left {
+    text-align: left !important;
+}
+
+.errors * {
+    color: red;
+}
+
+.nav-link i {
+    background: white;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #e1e1e1;
+    text-align: center;
+}
+
+.nav-link.active i {
+    background: var(--bs-primary);
+    color: white;
+}
