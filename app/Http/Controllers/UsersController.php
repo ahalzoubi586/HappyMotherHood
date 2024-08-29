@@ -12,14 +12,14 @@ class UsersController extends Controller
 {
     public function index()
     {
-        $users = User::where("email", "<>", "admin@admin.com")->get();
+        $users = User::where("user_type","0")->get();
         return view("Pages.Admin.Users.index", compact("users"));
     }
     public function users_list()
     {
         if (\request()->ajax()) {
 
-            $users = User::where("email", "<>", "admin@admin.com")->get();
+            $users = User::where("user_type","0")->get();
             Log::info($users);
             return DataTables::of($users)
                 ->addColumn("id", function ($row) {

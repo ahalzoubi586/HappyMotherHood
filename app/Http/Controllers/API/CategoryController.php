@@ -16,7 +16,6 @@ class CategoryController extends BaseController
             foreach ($categories as $category) {
                 $category->image = url('images/categories/' . $category->image);
             }
-            Log::info($categories);
             return $this->sendResponse($categories);
         } catch (Exception $e) {
             return $this->sendError($e->getMessage());

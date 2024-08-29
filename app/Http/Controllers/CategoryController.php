@@ -6,7 +6,7 @@ use App\Helpers\Helpers;
 use App\Models\Category;
 use App\Models\Notification;
 use App\Models\User;
-use App\Notifications\NewNotification;
+use App\Notifications\GeneralNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -88,9 +88,9 @@ class CategoryController extends Controller
             }
 
             Category::create(['title' => $request->category_title, 'image' => $imageName, 'status' => 1]);
-            $users = User::where("email", "<>", "admin@admin.com")->get();
+            $users = User::where("user_type","0")->get();
             foreach ($users as $user) {
-                $user->notify(new NewNotification($request->category_title, "تم إضافة تصنيف جديد بعنوان: " . $request->category_title));
+                $user->notify(new GeneralNotification($request->category_title, "تم إضافة تصنيف جديد بعنوان: " . $request->category_title));
             }
 
             $topic = "blogs";

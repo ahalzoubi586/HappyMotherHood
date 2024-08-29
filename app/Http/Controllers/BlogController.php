@@ -6,7 +6,7 @@ use App\Helpers\Helpers;
 use App\Models\Blog;
 use App\Models\Category;
 use App\Models\User;
-use App\Notifications\NewNotification;
+use App\Notifications\GeneralNotification;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -87,9 +87,9 @@ class BlogController extends Controller
             $blog->save();
 
             // Return a JSON response indicating success
-            $users = User::where("email", "<>", "admin@admin.com")->get();
+            $users = User::where("user_type","0")->get();
             foreach ($users as $user) {
-                $user->notify(new NewNotification($request->title, "تم إضافة مقال جديد بعنوان: " . $request->title));
+                $user->notify(new GeneralNotification($request->title, "تم إضافة مقال جديد بعنوان: " . $request->title));
             }
 
             $topic = "blogs";

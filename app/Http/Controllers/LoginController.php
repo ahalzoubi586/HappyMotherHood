@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Kreait\Firebase\Database;
+use Kreait\Firebase\Factory;
 
 class LoginController extends Controller
 {
     public function index()
     {
+        
         return view("Pages.Auth.login");
     }
     public function login(Request $request)

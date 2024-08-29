@@ -50,6 +50,7 @@ class LoginController extends BaseController
                     'email' => $request->email,
                     'phone_number' => $request->phone_number,
                     'password' => Hash::make($request->password),
+                    'firebase_token' => $request->firebase_token
                 ]);
                 Log::info("here1");
                 return $this->sendResponse("تم التسجيل بنجاح");

@@ -3,18 +3,16 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Notifications\Notification;
 
-class NewNotification extends Notification
+class GeneralNotification extends Notification
 {
     use Queueable;
-
     private $title;
     private $description;
 
-    public function __construct($title,$description)
+    public function __construct($title, $description)
     {
         $this->title = $title;
         $this->description = $description;

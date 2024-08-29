@@ -20,8 +20,8 @@ return new class extends Migration
             $table->boolean('last_message_read')->default(false);
             $table->timestamps();
 
-            $table->foreign('user_one_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('user_two_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('first_user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('second_user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
