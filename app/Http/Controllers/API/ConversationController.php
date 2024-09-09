@@ -55,11 +55,20 @@ class ConversationController extends BaseController
     // Create a new conversation
     public function sendMessage(Request $request)
     {
-        $firebase = (new Factory)->withServiceAccount(env("FIREBASE_CREDENTIALS"))
-            ->withDatabaseUri(env("FIREBASE_DATABASE_URL"));
-        $realtimeDatabase = $firebase->createDatabase();
-        $conversations_key = $realtimeDatabase->getReference("conversations");
         try {
+            $filePath = base_path('firebase_cred.json');
+
+            if (!file_exists($filePath)) {
+                return $this->sendError("Credintial Not Valid");
+            }
+
+            if (!is_readable($filePath)) {
+                return $this->sendError("Credintial Unreadable");
+            }
+            $firebase = (new Factory)->withServiceAccount($filePath)
+                ->withDatabaseUri(env("FIREBASE_DATABASE_URL"));
+            $realtimeDatabase = $firebase->createDatabase();
+            $conversations_key = $realtimeDatabase->getReference("conversations");
             $userId = $request->user()->id;
             $conversationId = $request->conversationId;
             $request->validate([
@@ -96,9 +105,9 @@ class ConversationController extends BaseController
             $message->message = $request->message;
             if ($message->save()) {
                 $other_user_id = 0;
-                if ($conversation->first_user_id == $userId){
+                if ($conversation->first_user_id == $userId) {
                     $other_user_id = $conversation->second_user_id;
-                }else{
+                } else {
                     $other_user_id = $conversation->first_user_id;
                 }
                 $conversations_key->getChild($conversationId)->getChild($other_user_id)->set(1);
@@ -139,6 +148,7 @@ class ConversationController extends BaseController
             $data['second_user_id'] = $conversation->second_user_id;
             return $this->sendResponse($data);
         } catch (Exception $e) {
+            Log::info($e->getMessage());
             return $this->sendError($e->getMessage());
         }
     }
