@@ -40,7 +40,12 @@ class UsersController extends Controller
                     return $row->created_at;
                 })
                 ->addColumn("duration", function ($row) {
-                    return $row->duration;
+                    $milliseconds = $row->duration; // Assuming $row->duration is in milliseconds
+$totalSeconds = floor($milliseconds / 1000);
+$hours = floor($totalSeconds / 3600);
+$minutes = floor(($totalSeconds % 3600) / 60);
+$seconds = $totalSeconds % 60;
+return sprintf('%02dh:%02dm:%02ds', $hours, $minutes, $seconds);
                 })
                 ->addColumn("action", function ($row) {
                     $data["id"] = $row->id;
@@ -54,7 +59,7 @@ class UsersController extends Controller
     {
         try {
             $id = request()->get('id');
-            $user = User::where('id', $id)->first();
+            $user = User::where('id', $id)->first();            
             return view('Pages.Admin.Users.parts.details', compact("user"));
         } catch (Exception $e) {
             return $e->getMessage();

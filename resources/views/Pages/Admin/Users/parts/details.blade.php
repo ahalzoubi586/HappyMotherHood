@@ -7,12 +7,11 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th colspan="4">المدة</th>
+                    <th colspan="3">المدة</th>
                     <th>الوقت والتاريخ</th>
                 </tr>
                 <tr>
                     <th></th>
-                    <th>يوم</th>
                     <th>ساعة</th>
                     <th>دقيقة</th>
                     <th>ثانية</th>
@@ -23,10 +22,9 @@
                 @foreach ($user->durations as $duration)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $duration->duration_in_days }}</td>
-                        <td>{{ $duration->duration_in_hours }}</td>
-                        <td>{{ $duration->duration_in_minutes }}</td>
-                        <td>{{ $duration->duration_in_seconds }}</td>
+                        <td>{{ floor(floor($duration / 1000) / 3600) }}</td>
+                        <td>{{ floor((floor($duration / 1000) % 3600) / 60) }}</td>
+                        <td>{{ floor($duration / 1000) % 60 }}</td>
                         <td>{{ $duration->created_at }}</td>
                     </tr>
                 @endforeach

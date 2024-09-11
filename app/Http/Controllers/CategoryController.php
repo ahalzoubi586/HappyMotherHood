@@ -47,7 +47,7 @@ class CategoryController extends Controller
                     return $row->created_at;
                 })
                 ->addColumn("status", function ($row) {
-                    return $row->deleted_at == null ? view("components.alert-component", ["class" => "success", "slot" => "فعّال"])->render() : view("components.alert-component", ["class" => "danger", "slot" => "غير فعّال"])->render();
+                    return $row->deleted_at == null ? view('components.alert-component', ['class' => 'success','slot' =>'فعّال'])->render() : view("components.alert-component", ["class" => "danger", "slot" => "غير فعّال"])->render();
                 })
                 ->addColumn("action", function ($row) {
                     $data["id"] = $row->id;
@@ -99,7 +99,12 @@ class CategoryController extends Controller
                 "body"  => 'تم إضافة تصنيف جديد بعنوان: ' . $request->category_title,
                 "type" => $topic
             );
+            try{
             Helpers::send_to_topic($msg, $topic);
+            }
+            catch(Exception $e){
+                Log::info($e->getMessage());
+            }
             return response()->json(
                 [
                     'result' => 'success',

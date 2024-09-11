@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
+use GuzzleHttp\Client;
 
 class ConversationController extends BaseController
 {
@@ -44,7 +45,6 @@ class ConversationController extends BaseController
                     'unread_messages_count' => $conversation->unread_messages_count,
                 ];
             });
-            Log::info($conversations);
             return $this->sendResponse($conversations);
         } catch (Exception $e) {
             return $this->sendError($e->getMessage());
@@ -55,6 +55,7 @@ class ConversationController extends BaseController
     // Create a new conversation
     public function sendMessage(Request $request)
     {
+        Log::info("send");
         try {
             $filePath = base_path('firebase_cred.json');
 
@@ -109,7 +110,7 @@ class ConversationController extends BaseController
                     $other_user_id = $conversation->second_user_id;
                 } else {
                     $other_user_id = $conversation->first_user_id;
-                }
+                } 
                 $conversations_key->getChild($conversationId)->getChild($other_user_id)->set(1);
                 $conversations_key->getChild($conversationId)->getChild("conv$other_user_id")->set(1);
             }
@@ -124,7 +125,6 @@ class ConversationController extends BaseController
                 try {
                     $recuser->notify(new ChatMessageNotification($message));
                 } catch (Exception $e) {
-                    Log::info($e->getMessage());
                 }
             }*/
 
@@ -148,7 +148,6 @@ class ConversationController extends BaseController
             $data['second_user_id'] = $conversation->second_user_id;
             return $this->sendResponse($data);
         } catch (Exception $e) {
-            Log::info($e->getMessage());
             return $this->sendError($e->getMessage());
         }
     }
@@ -230,7 +229,6 @@ class ConversationController extends BaseController
                     ];
                 });
             }
-            Log::info($messages);
             $data['messages'] = $messages;
             return $this->sendResponse($data);
         } catch (Exception $e) {

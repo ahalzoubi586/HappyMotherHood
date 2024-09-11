@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\User;
 use Exception;
 use Google\Client;
 use Illuminate\Support\Facades\Log;
@@ -41,7 +42,6 @@ class Helpers
             die('Curl failed: ' . curl_error($ch));
         }
         curl_close($ch);
-        Log::info($result);
         return $result;
     }
     static function send_to_user($userToken, $message)
@@ -49,8 +49,6 @@ class Helpers
         $accessToken = self::getAccessToken();
         //$url = 'https://fcm.googleapis.com/fcm/send';
         $url = "https://fcm.googleapis.com/v1/projects/jamad-nabat/messages:send";
-
-        // Add the type to the message array
         $message['type'] = "message";
         $message = [
             'token' => $userToken,
@@ -80,25 +78,40 @@ class Helpers
         $result = curl_exec($ch);
 
         // Check for errors
+        $result = curl_exec($ch);
+
+        // Check for errors
         if ($result === FALSE) {
-            die('Curl failed: ' . curl_error($ch));
+            Log::error('Curl failed: ' . curl_error($ch));
+        } else {
+            $response = json_decode($result, true);
+
+            // Handle the response
+            if (isset($response['error']) && $response['error']['status'] === 'NOT_FOUND') {
+                Log::error("Invalid FCM token: {$userToken}. Removing from database.");
+                self::removeInvalidToken($userToken);
+            } else {
+                Log::info('FCM Notification sent successfully.');
+            }
         }
 
         // Close cURL session
         curl_close($ch);
 
-        Log::info($result);
         return $result;
     }
     static function getAccessToken()
     {
         $path = base_path("firebase_cred.json");
-        Log::info($path);
         $client = new Client();
         $client->setAuthConfig($path);
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
         $client->useApplicationDefaultCredentials();
         $token = $client->fetchAccessTokenWithAssertion();
         return $token['access_token'];
+    }
+    private static function removeInvalidToken($token)
+    {
+        User::where('firebase_token', $token)->update(['firebase_token' => null]);
     }
 }

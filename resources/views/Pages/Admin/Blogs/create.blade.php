@@ -20,7 +20,7 @@
                     </div>
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">عنوان المقال</span>
-                        <input type="text" class="form-control" placeholder="عنوان التصنيف" name="title"
+                        <input type="text" class="form-control" placeholder="عنوان المقال" name="title"
                             aria-label="title" aria-describedby="basic-addon1">
                     </div>
                     <div class="input-group mb-3">
