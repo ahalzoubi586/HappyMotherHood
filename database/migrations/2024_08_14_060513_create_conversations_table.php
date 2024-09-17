@@ -12,6 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('conversations', function (Blueprint $table) {
+            $table->engine = 'InnoDB'; // Set the table engine to InnoDB
+
             $table->id();
             $table->unsignedBigInteger('first_user_id');
             $table->unsignedBigInteger('second_user_id');

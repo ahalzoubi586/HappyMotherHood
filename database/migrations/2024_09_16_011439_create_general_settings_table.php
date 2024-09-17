@@ -12,6 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('general_settings', function (Blueprint $table) {
+            $table->engine = 'InnoDB'; // Set the table engine to InnoDB
+
             $table->id();
             $table->string("app_version",10);
             $table->timestamps();

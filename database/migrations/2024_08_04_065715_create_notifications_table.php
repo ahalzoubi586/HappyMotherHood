@@ -12,6 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
+            $table->engine = 'InnoDB'; // Set the table engine to InnoDB
+
             $table->uuid('id')->primary();
             $table->string('type');
             $table->morphs('notifiable');

@@ -48,8 +48,18 @@
 </head>
 
 <body>
+    <div style="background: var(--bs-primary) !important">
+        <div class="container d-flex justify-content-between align-items-center align-content-center">
+            <a href="{{ route('index') }}">
+                <img src="{{ asset('assets/img/momm_logo.png') }}" class="img-fluid mb-3 logo"
+                    style="margin:0 !important;padding:0;max-width:35%;background:white;"right;padding alt="Logo image" />
+            </a>
+            <h3 style="color:white;">{{ env('APP_NAME') }}</h3>
+        </div>
+    </div>
     @yield('content')
     @yield('scripts')
+
 </body>
 
 </html>

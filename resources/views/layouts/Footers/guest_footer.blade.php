@@ -1,5 +1,7 @@
+
+<br><br><br>
 <div
-    class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
+    class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary fixed-bottom">
     <!-- Copyright -->
     <!-- Copyright -->
 

@@ -26,4 +26,5 @@ class GeneralController extends Controller
             Log::info($e->getMessage());
         }
     }
+    
 }

@@ -1,13 +1,5 @@
 @extends('layouts.guest')
 @section('content')
-    <div class="d-flex justify-content-between align-items-center align-content-center"
-        style="background: var(--bs-primary) !important">
-        <a href="{{ route("index") }}">
-            <img src="{{ asset('assets/img/momm_logo.png') }}" class="img-fluid mb-3 logo"
-                style="margin:0 !important;padding:0;max-width:35%;background:white;"right;padding alt="Logo image" />
-        </a>
-        <h1 style="color:white;">{{ env('APP_NAME') }}</h1>
-    </div>
     <section class="container" dir="ltr">
         <h1>Privacy Policy</h1>
         <p>Last updated: September 17, 2024</p>
