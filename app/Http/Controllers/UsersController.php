@@ -12,14 +12,14 @@ class UsersController extends Controller
 {
     public function index()
     {
-        $users = User::where("user_type","0")->get();
+        $users = User::where("user_type", "0")->get();
         return view("Pages.Admin.Users.index", compact("users"));
     }
     public function users_list()
     {
         if (\request()->ajax()) {
 
-            $users = User::where("user_type","0")->get();
+            $users = User::where("user_type", "0")->get();
             Log::info($users);
             return DataTables::of($users)
                 ->addColumn("id", function ($row) {
@@ -41,11 +41,11 @@ class UsersController extends Controller
                 })
                 ->addColumn("duration", function ($row) {
                     $milliseconds = $row->duration; // Assuming $row->duration is in milliseconds
-$totalSeconds = floor($milliseconds / 1000);
-$hours = floor($totalSeconds / 3600);
-$minutes = floor(($totalSeconds % 3600) / 60);
-$seconds = $totalSeconds % 60;
-return sprintf('%02dh:%02dm:%02ds', $hours, $minutes, $seconds);
+                    $totalSeconds = floor($milliseconds / 1000);
+                    $hours = floor($totalSeconds / 3600);
+                    $minutes = floor(($totalSeconds % 3600) / 60);
+                    $seconds = $totalSeconds % 60;
+                    return sprintf('%02dh:%02dm:%02ds', $hours, $minutes, $seconds);
                 })
                 ->addColumn("action", function ($row) {
                     $data["id"] = $row->id;
@@ -59,7 +59,7 @@ return sprintf('%02dh:%02dm:%02ds', $hours, $minutes, $seconds);
     {
         try {
             $id = request()->get('id');
-            $user = User::where('id', $id)->first();            
+            $user = User::where('id', $id)->first();
             return view('Pages.Admin.Users.parts.details', compact("user"));
         } catch (Exception $e) {
             return $e->getMessage();

@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+Route::get('PrivacyPolicy',function(){
+    return view('Pages.privacy_' . app()->getLocale());
+})->name('privacy_policy');
 Route::controller(LoginController::class)->group(function () {
     Route::get('/', 'index')->name("index");
     Route::post('/login', 'login')->name("login");

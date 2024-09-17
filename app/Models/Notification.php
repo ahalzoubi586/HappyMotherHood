@@ -22,4 +22,17 @@ class Notification extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
+    public function setDataAttribute($data)
+    {
+        $this->attributes['data'] = json_encode($data);
+    }
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) \Str::uuid();
+            }
+        });
+    }
 }

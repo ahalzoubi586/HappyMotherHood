@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
 use GuzzleHttp\Client;
+use Kreait\Firebase\Messaging\CloudMessage;
 
 class ConversationController extends BaseController
 {
@@ -104,13 +105,13 @@ class ConversationController extends BaseController
             $message->conversation_id = $conversationId;
             $message->sender_id = $userId;
             $message->message = $request->message;
-            if ($message->save()) {
                 $other_user_id = 0;
+            if ($message->save()) {
                 if ($conversation->first_user_id == $userId) {
                     $other_user_id = $conversation->second_user_id;
                 } else {
                     $other_user_id = $conversation->first_user_id;
-                } 
+                }
                 $conversations_key->getChild($conversationId)->getChild($other_user_id)->set(1);
                 $conversations_key->getChild($conversationId)->getChild("conv$other_user_id")->set(1);
             }
@@ -120,7 +121,7 @@ class ConversationController extends BaseController
             $conversation->last_message_time = now();
             $conversation->last_message_read = false;
             $conversation->save();
-            $recuser = User::find($conversation->second_user_id);
+            $recuser = User::find($other_user_id);
             /*if ($recuser) {
                 try {
                     $recuser->notify(new ChatMessageNotification($message));
@@ -131,12 +132,13 @@ class ConversationController extends BaseController
             // Retrieve the user's FCM token from the database
             $userToken = $recuser->firebase_token; // Replace this with the actual token
             $noti_message = array(
-                'title' => 'رسالة جديدة',
+                'title' => $request->user()->name,
                 'body'  => $request->message,
-                'conversation_id' => $conversation->id,
-                'username' => $recuser->name . "(" . $recuser->email . ")",
-            );
+                'conversation_id' => "$conversation->id",
+                'username' => $request->user()->name . "(" . $request->user()->email . ")",
+                "type" => "message"
 
+            );
             try {
                 Helpers::send_to_user($userToken, $noti_message);
             } catch (Exception $e) {

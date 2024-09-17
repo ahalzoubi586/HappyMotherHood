@@ -44,7 +44,6 @@ class IndexController extends BaseController
         try {
 
             $userId = $request->user()->id;
-            Log::info("ssss" . $userId);
             $data['notificationsCount'] = $request->user()->unreadNotifications()->count();
 
             $unreadMessagesCount = DB::table('messages')

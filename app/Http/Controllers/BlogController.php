@@ -63,7 +63,7 @@ class BlogController extends Controller
     {
         $category_id = $category_id == null ? 0 : Crypt::decrypt($category_id);
         $categories = Category::all();
-        return view("Pages.Admin.Blogs.create",compact("categories","category_id"));
+        return view("Pages.Admin.Blogs.create", compact("categories", "category_id"));
     }
 
     /**
@@ -71,8 +71,8 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-          // Validate the request data
-          $request->validate([
+        // Validate the request data
+        $request->validate([
             'category_id' => 'required|exists:categories,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -85,20 +85,31 @@ class BlogController extends Controller
             $blog->title = $request->input('title');
             $blog->description = $request->input('description');
             $blog->save();
-
+            $category = Category::find($request->input('category_id'));
             // Return a JSON response indicating success
-            $users = User::where("user_type","0")->get();
+            $users = User::where("user_type", "0")->get();
             foreach ($users as $user) {
-                $user->notify(new GeneralNotification($request->title, "تم إضافة مقال جديد بعنوان: " . $request->title));
+                try {
+                    $user->notify(new GeneralNotification($request->title, "تم إضافة مقال جديد بعنوان: " . $request->title));
+                } catch (Exception $e) {
+                }
             }
 
-            $topic = "blogs";
-            $msg = array(
+            $data = array(
                 "title" => $request->title,
                 "body"  => 'تم إضافة مقال جديد بعنوان: ' . $request->title,
-                "type" => $topic
+                "topic" => "blogs",
+                "type" => "blog",
+                "category_id" => "$category->id",
+                "category_title" => $category->title,
+                "category_image" => $category->image
             );
-            //Helpers::send_to_topic($msg, $topic);
+
+            try {
+                Helpers::send_to_topic($data);
+            } catch (Exception $e) {
+                Log::info($e->getMessage());
+            }
             return response()->json(
                 [
                     'result' => 'success',
@@ -128,7 +139,7 @@ class BlogController extends Controller
             $blog_id = Crypt::decrypt($blog_id);
             $blog = Blog::withTrashed()->find($blog_id);
             $categories = Category::all();
-            return view("Pages.Admin.Blogs.edit", compact('blog','categories'));
+            return view("Pages.Admin.Blogs.edit", compact('blog', 'categories'));
         } catch (Exception $e) {
             return $e->getMessage();
         }

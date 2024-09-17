@@ -21,8 +21,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('login', [LoginController::class, 'login']);
-Route::post('register', [LoginController::class, 'register']);
+Route::controller(LoginController::class)->group(function () {
+    Route::post('/login', 'login');
+    Route::post('/register', 'register');
+    Route::get('/getGeneralSettings', 'getGeneralSettings');
+});
 Route::group(
     [
         'middleware' => ['auth:sanctum'],

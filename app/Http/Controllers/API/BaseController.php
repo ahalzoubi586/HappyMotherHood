@@ -14,6 +14,7 @@ class BaseController extends Controller
             'status' => 'success',
             'result' => $result,
         ];
+        Log::info($response);
         return response()->json($response, 200);
     }
     public function sendError($result, $code = 200)
@@ -22,6 +23,7 @@ class BaseController extends Controller
             'status' => 'error',
             'result' => $result,
         ];
+        Log::info($response);
         return response()->json($response, $code);
     }
 }

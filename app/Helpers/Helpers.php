@@ -10,25 +10,24 @@ use Illuminate\Support\Facades\Log;
 class Helpers
 {
 
-    static function send_to_topic($message, $topic)
+    static function send_to_topic($data)
     {
-
+        Log::info($data);
         $accessToken = self::getAccessToken();
         $url = 'https://fcm.googleapis.com/v1/projects/jamad-nabat/messages:send';
-        $message['type'] = "general";
-        $fields = array(
-            'topic'        => $topic,
-            'notification' => array(
-                'title' => $message['title'],
-                'body'  => $message['body'],
-            ),
-            'data'         => $message
-        );
+        $fields = [
+            'topic'        => $data['topic'],
+            'notification' => [
+                'title' => $data['title'],
+                'body'  => $data['body'],
+            ],
+            'data'         => ['type' => $data['type']]
+        ];
 
-        $headers = array(
+        $headers = [
             'Authorization: Bearer ' . $accessToken,
             'Content-Type: application/json'
-        );
+        ];
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -36,27 +35,39 @@ class Helpers
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['message' => $fields]));
+        $result = curl_exec($ch);
+
+        // Check for errors
         $result = curl_exec($ch);
         if ($result === FALSE) {
-            die('Curl failed: ' . curl_error($ch));
+            Log::error('Curl failed: ' . curl_error($ch));
+        } else {
+            $response = json_decode($result, true);
+            Log::info($response);
+            Log::info('FCM Notification sent successfully.');
         }
         curl_close($ch);
         return $result;
     }
-    static function send_to_user($userToken, $message)
+    static function send_to_user($userToken, $data)
     {
         $accessToken = self::getAccessToken();
         //$url = 'https://fcm.googleapis.com/fcm/send';
         $url = "https://fcm.googleapis.com/v1/projects/jamad-nabat/messages:send";
-        $message['type'] = "message";
         $message = [
             'token' => $userToken,
             'notification' => [
-                'title' =>  $message['title'],
-                'body' =>  $message['body'],
+                'title' =>  $data['title'],
+                'body' =>  $data['body'],
+            ],
+            'data' => [
+                'type' => $data['type'],
+                'conversation_id' => $data['conversation_id'],
+                'username' => $data['username']
             ],
         ];
+        Log::info($message);
         // HTTP headers with Authorization key
         $headers = array(
             'Authorization: Bearer ' . $accessToken,
@@ -79,14 +90,10 @@ class Helpers
 
         // Check for errors
         $result = curl_exec($ch);
-
-        // Check for errors
         if ($result === FALSE) {
             Log::error('Curl failed: ' . curl_error($ch));
         } else {
             $response = json_decode($result, true);
-
-            // Handle the response
             if (isset($response['error']) && $response['error']['status'] === 'NOT_FOUND') {
                 Log::error("Invalid FCM token: {$userToken}. Removing from database.");
                 self::removeInvalidToken($userToken);

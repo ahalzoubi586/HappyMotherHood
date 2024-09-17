@@ -29,7 +29,7 @@ class CategoryController extends Controller
         if (\request()->ajax()) {
 
             $categories = Category::withTrashed()->get();
-                        Log::info($categories);
+            Log::info($categories);
             return DataTables::of($categories)
                 ->addColumn("id", function ($row) {
                     static $counter = 0;
@@ -47,7 +47,7 @@ class CategoryController extends Controller
                     return $row->created_at;
                 })
                 ->addColumn("status", function ($row) {
-                    return $row->deleted_at == null ? view('components.alert-component', ['class' => 'success','slot' =>'فعّال'])->render() : view("components.alert-component", ["class" => "danger", "slot" => "غير فعّال"])->render();
+                    return $row->deleted_at == null ? view('components.alert-component', ['class' => 'success', 'slot' => 'فعّال'])->render() : view("components.alert-component", ["class" => "danger", "slot" => "غير فعّال"])->render();
                 })
                 ->addColumn("action", function ($row) {
                     $data["id"] = $row->id;
@@ -88,21 +88,25 @@ class CategoryController extends Controller
             }
 
             Category::create(['title' => $request->category_title, 'image' => $imageName, 'status' => 1]);
-            $users = User::where("user_type","0")->get();
+            $users = User::where("user_type", "0")->get();
             foreach ($users as $user) {
-                $user->notify(new GeneralNotification($request->category_title, "تم إضافة تصنيف جديد بعنوان: " . $request->category_title));
+                try {
+                    $user->notify(new GeneralNotification($request->category_title, "تم إضافة تصنيف جديد بعنوان: " . $request->category_title));
+                } catch (Exception $e) {
+                    Log::info("here");
+                    Log::info($e->getMessage());
+                }
             }
-
-            $topic = "blogs";
-            $msg = array(
+            $data = [
                 "title" => $request->category_title,
                 "body"  => 'تم إضافة تصنيف جديد بعنوان: ' . $request->category_title,
-                "type" => $topic
-            );
-            try{
-            Helpers::send_to_topic($msg, $topic);
-            }
-            catch(Exception $e){
+                "topic" => "blogs",
+                "type" => "category",
+            ];
+            try {
+                Helpers::send_to_topic($data);
+            } catch (Exception $e) {
+                Log::info("here");
                 Log::info($e->getMessage());
             }
             return response()->json(
