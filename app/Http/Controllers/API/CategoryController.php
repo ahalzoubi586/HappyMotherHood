@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\Category;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

@@ -61,6 +61,7 @@ class LoginController extends BaseController
         } else {
             try {
                 User::create([
+                    'uid' =>$request->uid,
                     'name' => $request->username,
                     'email' => $request->email,
                     'phone_number' => $request->phone_number,

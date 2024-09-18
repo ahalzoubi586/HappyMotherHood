@@ -18,7 +18,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = ['name', 'email', 'password', 'phone_number', 'duration', 'firebase_token'];
+    protected $fillable = ['uid','name', 'email', 'password', 'phone_number', 'duration', 'firebase_token'];
 
     /**
      * The attributes that should be hidden for serialization.
