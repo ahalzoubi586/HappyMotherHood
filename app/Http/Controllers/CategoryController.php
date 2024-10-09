@@ -22,38 +22,37 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return view("Pages.Admin.Categories.index");
+        return view('Pages.Admin.Categories.index');
     }
     public function categories_list()
     {
         if (\request()->ajax()) {
-
             $categories = Category::withTrashed()->get();
             Log::info($categories);
             return DataTables::of($categories)
-                ->addColumn("id", function ($row) {
+                ->addColumn('id', function ($row) {
                     static $counter = 0;
                     $counter++;
                     return $counter;
                 })
-                ->editColumn("title", function ($row) {
+                ->editColumn('title', function ($row) {
                     return $row->title;
                 })
-                ->editColumn("image", function ($row) {
+                ->editColumn('image', function ($row) {
                     $category_image = $row->image;
-                    return view("Pages.Admin.Categories.parts.category_image", compact("category_image"));
+                    return view('Pages.Admin.Categories.parts.category_image', compact('category_image'));
                 })
-                ->addColumn("created_at", function ($row) {
+                ->addColumn('created_at', function ($row) {
                     return $row->created_at;
                 })
-                ->addColumn("status", function ($row) {
-                    return $row->deleted_at == null ? view('components.alert-component', ['class' => 'success', 'slot' => 'فعّال'])->render() : view("components.alert-component", ["class" => "danger", "slot" => "غير فعّال"])->render();
+                ->addColumn('status', function ($row) {
+                    return $row->deleted_at == null ? view('components.alert-component', ['class' => 'success', 'slot' => 'فعّال'])->render() : view('components.alert-component', ['class' => 'danger', 'slot' => 'غير فعّال'])->render();
                 })
-                ->addColumn("action", function ($row) {
-                    $data["id"] = $row->id;
-                    return view("Pages.Admin.Categories.parts.actions", $data)->render();
+                ->addColumn('action', function ($row) {
+                    $data['id'] = $row->id;
+                    return view('Pages.Admin.Categories.parts.actions', $data)->render();
                 })
-                ->rawColumns(["id", "status", "action"])
+                ->rawColumns(['id', 'status', 'action'])
                 ->make(true);
         }
     }
@@ -62,7 +61,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view("Pages.Admin.Categories.create");
+        return view('Pages.Admin.Categories.create');
     }
 
     /**
@@ -74,53 +73,71 @@ class CategoryController extends Controller
             $request->validate([
                 'category_title' => 'required|string|max:255',
                 'category_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'category_image_url' => 'nullable|url',
             ]);
 
+            $imageName = null;
 
             if ($request->hasFile('category_image')) {
+                // Save the uploaded image
                 $image = $request->file('category_image');
-                $imagePath = "images/categories/";
+                $imagePath = 'images/categories/';
                 if (!File::isDirectory($imagePath)) {
                     File::makeDirectory($imagePath, 0777, true, true);
                 }
-                $imageName = now()->format('Ymd_His') . '_' . $image->getClientOriginalName();
+                $imageName = now()->format('Ymd_His') . '.' . $image->getClientOriginalExtension();
                 $image->move($imagePath, $imageName);
+            } elseif ($request->category_image_url) {
+                // Save the image URL
+                $imageUrl = $request->category_image_url;
+                $imageContent = file_get_contents($imageUrl); // You could also use curl for more robust handling
+                $imageExtension = pathinfo($imageUrl, PATHINFO_EXTENSION); // Get image extension from URL
+                $imageName = now()->format('Ymd_His') . '.' . $imageExtension;
+                $imagePath = 'images/categories/';
+
+                if (!File::isDirectory($imagePath)) {
+                    File::makeDirectory($imagePath, 0777, true, true);
+                }
+
+                file_put_contents($imagePath . $imageName, $imageContent);
             }
 
-            Category::create(['title' => $request->category_title, 'image' => $imageName, 'status' => 1]);
-            $users = User::where("user_type", "0")->get();
+            Category::create([
+                'title' => $request->category_title,
+                'image' => $imageName,
+                'status' => 1,
+            ]);
+
+            // Send notifications
+            $users = User::where('user_type', '0')->get();
             foreach ($users as $user) {
                 try {
-                    $user->notify(new GeneralNotification($request->category_title, "تم إضافة تصنيف جديد بعنوان: " . $request->category_title));
+                    $user->notify(new GeneralNotification($request->category_title, 'تم إضافة تصنيف جديد بعنوان: ' . $request->category_title));
                 } catch (Exception $e) {
-                    Log::info("here");
                     Log::info($e->getMessage());
                 }
             }
+
+            // Additional logic for sending to Firebase topic
             $data = [
-                "title" => $request->category_title,
-                "body"  => 'تم إضافة تصنيف جديد بعنوان: ' . $request->category_title,
-                "topic" => "blogs",
-                "type" => "category",
+                'title' => $request->category_title,
+                'body' => 'تم إضافة تصنيف جديد بعنوان: ' . $request->category_title,
+                'topic' => 'blogs',
+                'type' => 'category',
             ];
+
             try {
                 Helpers::send_to_topic($data);
             } catch (Exception $e) {
-                Log::info("here");
                 Log::info($e->getMessage());
             }
-            return response()->json(
-                [
-                    'result' => 'success',
-                ],
-                200
-            );
+
+            return response()->json(['result' => 'success'], 200);
         } catch (Exception $e) {
             Log::info($e->getMessage());
             return response()->json(['result' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
-
 
     /**
      * Display the specified resource.
@@ -138,7 +155,7 @@ class CategoryController extends Controller
         try {
             $category_id = Crypt::decrypt($category_id);
             $category = Category::withTrashed()->find($category_id);
-            return view("Pages.Admin.Categories.edit", compact('category'));
+            return view('Pages.Admin.Categories.edit', compact('category'));
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -159,7 +176,7 @@ class CategoryController extends Controller
             $category->title = $request->category_title;
             if ($request->hasFile('category_image')) {
                 $image = $request->file('category_image');
-                $imagePath = "images/categories/";
+                $imagePath = 'images/categories/';
                 if (!File::isDirectory($imagePath)) {
                     File::makeDirectory($imagePath, 0777, true, true);
                 }
@@ -176,7 +193,7 @@ class CategoryController extends Controller
                 [
                     'result' => 'success',
                 ],
-                200
+                200,
             );
         } catch (Exception $e) {
             Log::info($e->getMessage());

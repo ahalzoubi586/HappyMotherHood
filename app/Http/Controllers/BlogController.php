@@ -71,6 +71,7 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info($request->all());
         // Validate the request data
         $request->validate([
             'category_id' => 'required|exists:categories,id',
