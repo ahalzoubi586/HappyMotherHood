@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\API\BlogController;
-use App\Http\Controllers\API\CategoryController;
-use App\Http\Controllers\API\ConversationController;
-use App\Http\Controllers\API\IndexController;
+use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ConversationController;
+use App\Http\Controllers\Api\IndexController;
 use App\Http\Controllers\Api\LoginController;
-use App\Http\Controllers\API\NotificationController;
-use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\UserController;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Route;
 
